@@ -1,0 +1,2330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromoChef - L'IA de vos économies culinaires</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #1B998B;
+            --primary-dark: #157A6E;
+            --primary-light: #2EC4B6;
+            --accent: #F4A261;
+            --success: #06D6A0;
+            --warning: #FFD166;
+            --danger: #EF476F;
+            --bg: #F8F9FA;
+            --card: #FFFFFF;
+            --text: #2C3E50;
+            --text-light: #6C757D;
+            --border: #E9ECEF;
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 60px rgba(27, 153, 139, 0.1);
+        }
+        
+        /* ========== SPLASH SCREEN ========== */
+        .splash-screen {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .splash-screen::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .splash-screen::after {
+            content: '';
+            position: absolute;
+            bottom: -150px;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(20px, -20px) scale(1.05); }
+        }
+        
+        .splash-logo {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+            animation: logo-bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes logo-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .splash-logo-content {
+            font-size: 80px;
+            position: relative;
+        }
+        
+        .logo-ingredient {
+            position: absolute;
+            font-size: 45px;
+            top: -5px;
+            left: -5px;
+        }
+        
+        .logo-ai {
+            position: absolute;
+            font-size: 40px;
+            bottom: -10px;
+            right: -10px;
+        }
+        
+        .splash-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        
+        .splash-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.95);
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+        }
+        
+        .splash-stats {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .splash-stat {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .splash-cta {
+            padding: 18px 48px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s;
+        }
+        
+        .splash-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        
+        /* ========== ONBOARDING ========== */
+        .onboarding {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 40px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar-container {
+            margin-bottom: 40px;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .progress-step {
+            flex: 1;
+            max-width: 60px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            transition: all 0.4s;
+        }
+        
+        .progress-step.active {
+            background: white;
+        }
+        
+        .progress-label {
+            text-align: center;
+            color: white;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        .onboarding-card {
+            background: white;
+            border-radius: 28px;
+            padding: 36px 28px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 28px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent) 0%, #E76F51 100%);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 20px rgba(244, 162, 97, 0.4);
+        }
+        
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        
+        .step-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        /* ========== FORMS ========== */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        input[type="text"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            background: var(--bg);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #F0FDF9;
+            box-shadow: 0 0 0 4px rgba(27, 153, 139, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* ========== STORE SELECTION ========== */
+        .stores-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        
+        .store-card {
+            background: var(--bg);
+            border: 3px solid var(--border);
+            border-radius: 18px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .store-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(27, 153, 139, 0.15);
+        }
+        
+        .store-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(27, 153, 139, 0.15) 0%, rgba(46, 196, 182, 0.1) 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(27, 153, 139, 0.25);
+        }
+        
+        .store-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(27, 153, 139, 0.4);
+        }
+        
+        .store-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 14px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.8rem;
+            color: var(--primary);
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .store-name {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        
+        .store-promo-count {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        /* ========== BUTTONS ========== */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(27, 153, 139, 0.35);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(27, 153, 139, 0.45);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            margin-top: 12px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* ========== MAIN APP ========== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 24px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(27, 153, 139, 0.25);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-mini-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .logo-mini-text {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .user-info {
+            color: white;
+        }
+        
+        .user-greeting {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        
+        .user-location {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .savings-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        
+        /* ========== DASHBOARD CARDS ========== */
+        .dashboard-section {
+            padding: 20px;
+            background: var(--bg);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        /* ========== STORE TABS ========== */
+        .store-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 18px 20px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .store-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .store-tab {
+            flex-shrink: 0;
+            padding: 12px 24px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .store-tab:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .store-tab.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 6px 20px rgba(27, 153, 139, 0.3);
+        }
+        
+        .tab-badge {
+            background: white;
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+        
+        .store-tab.active .tab-badge {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        /* ========== PRODUCTS GRID ========== */
+        .products-section {
+            padding: 24px 20px 120px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        
+        .filter-btn {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(27, 153, 139, 0.15);
+            border-color: var(--primary-light);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 14px;
+        }
+        
+        .product-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.4;
+            min-height: 38px;
+        }
+        
+        .product-prices {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        
+        .product-old-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+        }
+        
+        .product-discount {
+            background: linear-gradient(135deg, var(--accent) 0%, #E76F51 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+        
+        /* ========== GENERATE BUTTON ========== */
+        .generate-floating {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99;
+            max-width: 390px;
+            width: calc(100% - 40px);
+        }
+        
+        .btn-generate {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 12px 35px rgba(27, 153, 139, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(27, 153, 139, 0.5);
+        }
+        
+        /* ========== RECIPES ========== */
+        .recipes-section {
+            padding: 24px 20px 120px;
+            background: var(--bg);
+        }
+        
+        .recipe-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            position: relative;
+        }
+        
+        .recipe-badges {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .recipe-badge {
+            background: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .recipe-content {
+            padding: 24px;
+        }
+        
+        .recipe-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .recipe-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 20px;
+            padding: 18px 0;
+            border-top: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        /* ========== COST BREAKDOWN ========== */
+        .cost-breakdown {
+            background: linear-gradient(135deg, #E6F7F5 0%, #D1F2ED 100%);
+            border: 3px solid var(--primary-light);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .cost-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .cost-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        
+        .cost-label {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .cost-value {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--text);
+        }
+        
+        .cost-value.strike {
+            text-decoration: line-through;
+            color: #999;
+            font-weight: 600;
+        }
+        
+        .cost-value.highlight {
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+        
+        .savings-pill {
+            background: linear-gradient(135deg, var(--accent) 0%, #E76F51 100%);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            box-shadow: 0 6px 20px rgba(244, 162, 97, 0.4);
+        }
+        
+        .cost-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+            margin: 20px 0;
+        }
+        
+        .cost-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 20px;
+        }
+        
+        .summary-box {
+            background: white;
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 6px;
+        }
+        
+        .summary-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        /* ========== NUTRITION ========== */
+        .nutrition-section {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .nutrition-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        
+        .nutrition-item {
+            background: var(--bg);
+            padding: 16px 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .nutrition-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 6px;
+        }
+        
+        .nutrition-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        /* ========== INGREDIENTS ========== */
+        .ingredients-section {
+            margin-bottom: 28px;
+        }
+        
+        .section-subtitle {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ingredient-item {
+            background: var(--bg);
+            padding: 16px 18px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .ingredient-item:hover {
+            border-color: var(--primary-light);
+            background: #F0FDF9;
+        }
+        
+        .ingredient-name {
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .promo-tag {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(27, 153, 139, 0.3);
+        }
+        
+        /* ========== STEPS ========== */
+        .steps-section {
+            margin-bottom: 28px;
+        }
+        
+        .step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        
+        .step-number-circle {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(27, 153, 139, 0.3);
+        }
+        
+        .step-text {
+            color: var(--text-light);
+            line-height: 1.7;
+            padding-top: 10px;
+            font-size: 0.95rem;
+        }
+        
+        /* ========== VIDEO TUTORIAL ========== */
+        .video-tutorial-section {
+            background: linear-gradient(135deg, #1B998B 0%, #157A6E 100%);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-tutorial-section::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        
+        .video-hook {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .video-subhook {
+            color: rgba(255,255,255,0.95);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        
+        .video-thumbnail:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+        }
+        
+        .video-thumbnail-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            filter: brightness(0.85);
+        }
+        
+        .video-play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-play-button {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            animation: pulse-play 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-play {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.08); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+        }
+        
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-left: 20px solid var(--primary);
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 5px;
+        }
+        
+        .video-duration-badge {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .video-ai-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, #E76F51 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(244, 162, 97, 0.5);
+        }
+        
+        .video-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .video-stat {
+            flex: 1;
+            text-align: center;
+            color: white;
+        }
+        
+        .video-stat-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .video-stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        /* ========== VIDEO MODAL ========== */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .video-modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .video-modal-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            flex: 1;
+            padding-right: 20px;
+        }
+        
+        .close-video-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .close-video-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        
+        .video-modal-player {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .video-placeholder {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .video-placeholder-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .video-placeholder-title {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        
+        .video-placeholder-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+        
+        .video-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .video-feature {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* ========== EXPORT TO STORE ========== */
+        .export-section {
+            background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        
+        .export-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .export-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        
+        .btn-export {
+            width: 100%;
+            padding: 18px 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        
+        .btn-export:hover {
+            border-color: var(--primary);
+            background: #F0FDF9;
+            transform: translateX(5px);
+        }
+        
+        .export-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .export-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.75rem;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+        
+        .export-text {
+            text-align: left;
+        }
+        
+        .export-store-name {
+            font-weight: 800;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+        
+        .export-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .export-arrow {
+            font-size: 24px;
+            color: var(--primary);
+        }
+        
+        /* ========== LOADING ========== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid var(--border);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 24px;
+            font-weight: 700;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+        
+        .loading-subtext {
+            margin-top: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* ========== BOTTOM NAV ========== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 430px;
+            width: 100%;
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 14px 20px 20px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+            z-index: 98;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 14px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg);
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            background: #E6F7F5;
+        }
+        
+        .nav-icon {
+            font-size: 26px;
+        }
+        
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 400px) {
+            .products-grid {
+                gap: 12px;
+            }
+            
+            .product-card {
+                border-radius: 14px;
+            }
+            
+            .store-card {
+                padding: 18px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const STORES = [
+            { id: 'auchan', name: 'Auchan', url: 'https://www.auchan.fr', promos: 24 },
+            { id: 'carrefour', name: 'Carrefour', url: 'https://www.carrefour.fr', promos: 31 },
+            { id: 'leclerc', name: 'Leclerc', url: 'https://www.e.leclerc', promos: 28 },
+            { id: 'super-u', name: 'Super U', url: 'https://www.magasins-u.com', promos: 19 },
+            { id: 'intermarche', name: 'Intermarché', url: 'https://www.intermarche.com', promos: 22 },
+            { id: 'monoprix', name: 'Monoprix', url: 'https://www.monoprix.fr', promos: 17 }
+        ];
+
+        const PRODUCTS = {
+            carrefour: [
+                { id: 1, name: "Poulet fermier Label Rouge", price: 8.99, originalPrice: 11.99, discount: "25%", image: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" },
+                { id: 2, name: "Tomates fraîches bio", price: 2.49, originalPrice: 3.49, discount: "29%", image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400" },
+                { id: 3, name: "Pâtes Barilla 500g", price: 1.29, originalPrice: 1.99, discount: "35%", image: "https://images.unsplash.com/photo-1551462147-37950b60c3c9?w=400" },
+                { id: 4, name: "Huile d'olive extra vierge", price: 5.99, originalPrice: 8.99, discount: "33%", image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400" },
+                { id: 5, name: "Fromage râpé Emmental", price: 2.49, originalPrice: 3.29, discount: "24%", image: "https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400" },
+                { id: 6, name: "Saumon frais", price: 12.99, originalPrice: 16.99, discount: "24%", image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400" }
+            ]
+        };
+
+        function App() {
+            const [view, setView] = useState('splash'); // splash, onboarding, main
+            const [onboardingStep, setOnboardingStep] = useState(1);
+            const [userInfo, setUserInfo] = useState({
+                firstName: '',
+                lastName: '',
+                email: '',
+                selectedStores: [],
+                postalCode: '',
+                preferences: []
+            });
+            const [activeStore, setActiveStore] = useState('carrefour');
+            const [recipes, setRecipes] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [totalSavings, setTotalSavings] = useState(127.45);
+            const [showVideoModal, setShowVideoModal] = useState(false);
+            const [currentVideoRecipe, setCurrentVideoRecipe] = useState(null);
+
+            useEffect(() => {
+                if (view === 'splash') {
+                    setTimeout(() => setView('onboarding'), 2000);
+                }
+            }, [view]);
+
+            const generateRecipes = async () => {
+                setLoading(true);
+                
+                setTimeout(() => {
+                    setRecipes([
+                        {
+                            name: "Poulet rôti méditerranéen aux légumes",
+                            description: "Un plat savoureux et économique, parfait pour un dîner en famille",
+                            prepTime: "15 min",
+                            cookTime: "45 min",
+                            servings: 4,
+                            imageUrl: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600",
+                            store: activeStore,
+                            difficulty: "Facile",
+                            ingredients: [
+                                { item: "Poulet fermier Label Rouge", quantity: "1 pièce (1,2kg)", isPromo: true },
+                                { item: "Tomates fraîches bio", quantity: "500g", isPromo: true },
+                                { item: "Huile d'olive extra vierge", quantity: "4 c.à.s", isPromo: true },
+                                { item: "Herbes de Provence", quantity: "2 c.à.c", isPromo: false },
+                                { item: "Ail", quantity: "3 gousses", isPromo: false }
+                            ],
+                            steps: [
+                                "Préchauffer le four à 200°C (thermostat 6-7)",
+                                "Laver et couper les légumes en gros morceaux",
+                                "Disposer le poulet au centre d'un plat allant au four",
+                                "Répartir les légumes autour du poulet",
+                                "Arroser d'huile d'olive et saupoudrer d'herbes",
+                                "Enfourner pendant 45 minutes en arrosant régulièrement"
+                            ],
+                            nutrition: { calories: 480, proteins: 42, carbs: 18, fats: 28 }
+                        },
+                        {
+                            name: "Pâtes crémeuses au saumon frais",
+                            description: "Recette rapide et équilibrée, idéale pour les soirs de semaine",
+                            prepTime: "10 min",
+                            cookTime: "20 min",
+                            servings: 4,
+                            imageUrl: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
+                            store: activeStore,
+                            difficulty: "Très facile",
+                            ingredients: [
+                                { item: "Pâtes Barilla 500g", quantity: "500g", isPromo: true },
+                                { item: "Saumon frais", quantity: "300g", isPromo: true },
+                                { item: "Tomates fraîches bio", quantity: "300g", isPromo: true },
+                                { item: "Fromage râpé Emmental", quantity: "100g", isPromo: true },
+                                { item: "Crème fraîche", quantity: "200ml", isPromo: false }
+                            ],
+                            steps: [
+                                "Cuire les pâtes selon les instructions du paquet",
+                                "Couper le saumon en dés et les tomates en quartiers",
+                                "Faire revenir le saumon dans une poêle avec un peu d'huile",
+                                "Ajouter les tomates et la crème fraîche",
+                                "Mélanger avec les pâtes égouttées",
+                                "Saupoudrer de fromage râpé et servir chaud"
+                            ],
+                            nutrition: { calories: 520, proteins: 35, carbs: 58, fats: 16 }
+                        }
+                    ]);
+                    setLoading(false);
+                }, 2000);
+            };
+
+            const calculateCosts = (recipe) => {
+                const products = PRODUCTS[activeStore] || [];
+                let totalOriginal = 0;
+                let totalPromo = 0;
+
+                recipe.ingredients.forEach(ing => {
+                    const product = products.find(p => 
+                        ing.item.toLowerCase().includes(p.name.toLowerCase().split(' ')[0])
+                    );
+                    
+                    if (product && ing.isPromo) {
+                        totalOriginal += product.originalPrice * 0.6;
+                        totalPromo += product.price * 0.6;
+                    } else {
+                        totalOriginal += 2.8;
+                        totalPromo += 2.8;
+                    }
+                });
+
+                return {
+                    totalOriginal: totalOriginal.toFixed(2),
+                    totalPromo: totalPromo.toFixed(2),
+                    savings: (totalOriginal - totalPromo).toFixed(2),
+                    savingsPercent: (((totalOriginal - totalPromo) / totalOriginal) * 100).toFixed(0),
+                    costPerServing: (totalPromo / recipe.servings).toFixed(2)
+                };
+            };
+
+            // SPLASH SCREEN
+            if (view === 'splash') {
+                return (
+                    <div className="app-container">
+                        <div className="splash-screen">
+                            <div className="splash-logo">
+                                <div className="splash-logo-content">
+                                    <span className="logo-ingredient">🥑</span>
+                                    <span className="logo-ai">🤖</span>
+                                </div>
+                            </div>
+                            <h1 className="splash-title">PromoChef</h1>
+                            <p className="splash-subtitle">L'IA qui transforme vos promotions en recettes</p>
+                            <div className="splash-stats">
+                                <div className="splash-stat">
+                                    <span className="stat-number">127€</span>
+                                    <span className="stat-label">Économisés</span>
+                                </div>
+                                <div className="splash-stat">
+                                    <span className="stat-number">2.4K</span>
+                                    <span className="stat-label">Recettes</span>
+                                </div>
+                                <div className="splash-stat">
+                                    <span className="stat-number">45K</span>
+                                    <span className="stat-label">Utilisateurs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ONBOARDING
+            if (view === 'onboarding') {
+                if (onboardingStep === 1) {
+                    return (
+                        <div className="app-container">
+                            <div className="onboarding">
+                                <div className="progress-bar-container">
+                                    <div className="progress-steps">
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step"></div>
+                                        <div className="progress-step"></div>
+                                        <div className="progress-step"></div>
+                                    </div>
+                                    <div className="progress-label">Étape 1 sur 4</div>
+                                </div>
+
+                                <div className="onboarding-card">
+                                    <div className="step-number">1</div>
+                                    <h2 className="step-title">Présentez-vous 👋</h2>
+                                    <p className="step-subtitle">
+                                        Créez votre profil personnalisé pour une expérience sur-mesure
+                                    </p>
+
+                                    <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(2); }}>
+                                        <div className="form-group">
+                                            <label>Prénom *</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Marie"
+                                                value={userInfo.firstName}
+                                                onChange={(e) => setUserInfo({...userInfo, firstName: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Nom *</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Dupont"
+                                                value={userInfo.lastName}
+                                                onChange={(e) => setUserInfo({...userInfo, lastName: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Email (optionnel)</label>
+                                            <input
+                                                type="email"
+                                                placeholder="marie.dupont@email.com"
+                                                value={userInfo.email}
+                                                onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
+                                            />
+                                        </div>
+
+                                        <button type="submit" className="btn btn-primary">
+                                            Continuer →
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (onboardingStep === 2) {
+                    const toggleStore = (id) => {
+                        setUserInfo({
+                            ...userInfo,
+                            selectedStores: userInfo.selectedStores.includes(id)
+                                ? userInfo.selectedStores.filter(s => s !== id)
+                                : [...userInfo.selectedStores, id]
+                        });
+                    };
+
+                    return (
+                        <div className="app-container">
+                            <div className="onboarding">
+                                <div className="progress-bar-container">
+                                    <div className="progress-steps">
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step"></div>
+                                        <div className="progress-step"></div>
+                                    </div>
+                                    <div className="progress-label">Étape 2 sur 4</div>
+                                </div>
+
+                                <div className="onboarding-card">
+                                    <div className="step-number">2</div>
+                                    <h2 className="step-title">Vos enseignes 🛒</h2>
+                                    <p className="step-subtitle">
+                                        Sélectionnez les programmes de fidélité dont vous êtes membre
+                                    </p>
+
+                                    <div className="stores-grid">
+                                        {STORES.map(store => (
+                                            <div
+                                                key={store.id}
+                                                className={`store-card ${userInfo.selectedStores.includes(store.id) ? 'selected' : ''}`}
+                                                onClick={() => toggleStore(store.id)}
+                                            >
+                                                <div className="store-logo">
+                                                    {store.name.substring(0, 3).toUpperCase()}
+                                                </div>
+                                                <div className="store-name">{store.name}</div>
+                                                <div className="store-promo-count">{store.promos} promos</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => setOnboardingStep(3)}
+                                        disabled={userInfo.selectedStores.length === 0}
+                                    >
+                                        Continuer ({userInfo.selectedStores.length}) →
+                                    </button>
+
+                                    <button className="btn btn-secondary" onClick={() => setOnboardingStep(1)}>
+                                        ← Retour
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (onboardingStep === 3) {
+                    return (
+                        <div className="app-container">
+                            <div className="onboarding">
+                                <div className="progress-bar-container">
+                                    <div className="progress-steps">
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step"></div>
+                                    </div>
+                                    <div className="progress-label">Étape 3 sur 4</div>
+                                </div>
+
+                                <div className="onboarding-card">
+                                    <div className="step-number">3</div>
+                                    <h2 className="step-title">Votre secteur 📍</h2>
+                                    <p className="step-subtitle">
+                                        Indiquez votre code postal pour trouver les promotions de votre zone
+                                    </p>
+
+                                    <form onSubmit={(e) => { e.preventDefault(); setOnboardingStep(4); }}>
+                                        <div className="form-group">
+                                            <label>Code postal *</label>
+                                            <input
+                                                type="text"
+                                                placeholder="75001"
+                                                pattern="[0-9]{5}"
+                                                value={userInfo.postalCode}
+                                                onChange={(e) => setUserInfo({...userInfo, postalCode: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+
+                                        <button type="submit" className="btn btn-primary">
+                                            Continuer →
+                                        </button>
+                                    </form>
+
+                                    <button className="btn btn-secondary" onClick={() => setOnboardingStep(2)}>
+                                        ← Retour
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (onboardingStep === 4) {
+                    const preferences = [
+                        { id: 'vegetarien', label: 'Végétarien', icon: '🥗' },
+                        { id: 'vegan', label: 'Vegan', icon: '🌱' },
+                        { id: 'sans-gluten', label: 'Sans gluten', icon: '🌾' },
+                        { id: 'rapide', label: 'Rapide (-30min)', icon: '⚡' },
+                        { id: 'healthy', label: 'Healthy', icon: '💪' },
+                        { id: 'economique', label: 'Économique', icon: '💰' }
+                    ];
+
+                    const togglePreference = (id) => {
+                        setUserInfo({
+                            ...userInfo,
+                            preferences: userInfo.preferences.includes(id)
+                                ? userInfo.preferences.filter(p => p !== id)
+                                : [...userInfo.preferences, id]
+                        });
+                    };
+
+                    return (
+                        <div className="app-container">
+                            <div className="onboarding">
+                                <div className="progress-bar-container">
+                                    <div className="progress-steps">
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                        <div className="progress-step active"></div>
+                                    </div>
+                                    <div className="progress-label">Étape 4 sur 4</div>
+                                </div>
+
+                                <div className="onboarding-card">
+                                    <div className="step-number">4</div>
+                                    <h2 className="step-title">Vos préférences 🎯</h2>
+                                    <p className="step-subtitle">
+                                        Personnalisez vos recommandations (optionnel)
+                                    </p>
+
+                                    <div className="stores-grid">
+                                        {preferences.map(pref => (
+                                            <div
+                                                key={pref.id}
+                                                className={`store-card ${userInfo.preferences.includes(pref.id) ? 'selected' : ''}`}
+                                                onClick={() => togglePreference(pref.id)}
+                                            >
+                                                <div className="store-logo" style={{fontSize: '2rem'}}>
+                                                    {pref.icon}
+                                                </div>
+                                                <div className="store-name">{pref.label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => setView('main')}
+                                    >
+                                        Terminer ✨
+                                    </button>
+
+                                    <button className="btn btn-secondary" onClick={() => setOnboardingStep(3)}>
+                                        ← Retour
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            // MAIN APP
+            if (recipes.length === 0) {
+                return (
+                    <div className="app-container">
+                        <div className="app-header">
+                            <div className="header-top">
+                                <div className="logo-mini">
+                                    <div className="logo-mini-icon">🥑</div>
+                                    <div className="logo-mini-text">PromoChef</div>
+                                </div>
+                                <div className="header-actions">
+                                    <button className="icon-btn">🔔</button>
+                                    <button className="icon-btn" onClick={() => setView('onboarding')}>⚙️</button>
+                                </div>
+                            </div>
+                            <div className="user-info">
+                                <div className="user-greeting">Bonjour {userInfo.firstName} ! 👋</div>
+                                <div className="user-location">
+                                    <span>📍</span>
+                                    <span>{userInfo.postalCode} • {userInfo.selectedStores.length} enseigne{userInfo.selectedStores.length > 1 ? 's' : ''}</span>
+                                </div>
+                                <div className="savings-badge">
+                                    💰 {totalSavings}€ économisés ce mois
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="dashboard-section">
+                            <div className="stats-grid">
+                                <div className="stat-card">
+                                    <div className="stat-icon">🎯</div>
+                                    <div className="stat-value">142</div>
+                                    <div className="stat-label">Recettes créées</div>
+                                </div>
+                                <div className="stat-card">
+                                    <div className="stat-icon">💸</div>
+                                    <div className="stat-value">-35%</div>
+                                    <div className="stat-label">Économies moy.</div>
+                                </div>
+                                <div className="stat-card">
+                                    <div className="stat-icon">🛒</div>
+                                    <div className="stat-value">87</div>
+                                    <div className="stat-label">Promos actives</div>
+                                </div>
+                                <div className="stat-card">
+                                    <div className="stat-icon">⭐</div>
+                                    <div className="stat-value">4.8</div>
+                                    <div className="stat-label">Note moyenne</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="store-tabs">
+                            {userInfo.selectedStores.map(storeId => {
+                                const store = STORES.find(s => s.id === storeId);
+                                return (
+                                    <div
+                                        key={storeId}
+                                        className={`store-tab ${activeStore === storeId ? 'active' : ''}`}
+                                        onClick={() => setActiveStore(storeId)}
+                                    >
+                                        {store.name}
+                                        <span className="tab-badge">{store.promos}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="products-section">
+                            <div className="section-header">
+                                <h2 className="section-title">Promotions actuelles</h2>
+                                <button className="filter-btn">
+                                    🔍 Filtres
+                                </button>
+                            </div>
+
+                            <div className="products-grid">
+                                {PRODUCTS[activeStore].map(product => (
+                                    <div key={product.id} className="product-card">
+                                        <img src={product.image} alt={product.name} className="product-image" />
+                                        <div className="product-info">
+                                            <div className="product-name">{product.name}</div>
+                                            <div className="product-prices">
+                                                <span className="product-price">{product.price}€</span>
+                                                <span className="product-old-price">{product.originalPrice}€</span>
+                                            </div>
+                                            <span className="product-discount">{product.discount}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="generate-floating">
+                            <button className="btn-generate" onClick={generateRecipes} disabled={loading}>
+                                <span>✨</span>
+                                <span>Générer mes recettes IA</span>
+                            </button>
+                        </div>
+
+                        {loading && (
+                            <div className="loading-overlay">
+                                <div className="spinner"></div>
+                                <div className="loading-text">Génération en cours...</div>
+                                <div className="loading-subtext">L'IA analyse vos promotions</div>
+                            </div>
+                        )}
+
+                        <div className="bottom-nav">
+                            <div className="nav-item active">
+                                <div className="nav-icon">🏠</div>
+                                <div className="nav-label">Accueil</div>
+                            </div>
+                            <div className="nav-item">
+                                <div className="nav-icon">🔍</div>
+                                <div className="nav-label">Recherche</div>
+                            </div>
+                            <div className="nav-item">
+                                <div className="nav-icon">❤️</div>
+                                <div className="nav-label">Favoris</div>
+                            </div>
+                            <div className="nav-item" onClick={() => setView('onboarding')}>
+                                <div className="nav-icon">👤</div>
+                                <div className="nav-label">Profil</div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // RECIPES VIEW
+            return (
+                <div className="app-container">
+                    <div className="app-header">
+                        <div className="header-top">
+                            <div className="logo-mini">
+                                <div className="logo-mini-icon">🥑</div>
+                                <div className="logo-mini-text">PromoChef</div>
+                            </div>
+                            <div className="header-actions">
+                                <button className="icon-btn">📤</button>
+                                <button className="icon-btn" onClick={() => setRecipes([])}>🔄</button>
+                            </div>
+                        </div>
+                        <div className="user-info">
+                            <div className="user-greeting">Vos recettes personnalisées</div>
+                            <div className="user-location">
+                                {recipes.length} recette{recipes.length > 1 ? 's' : ''} pour {STORES.find(s => s.id === activeStore).name}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="recipes-section">
+                        {recipes.map((recipe, idx) => {
+                            const costs = calculateCosts(recipe);
+
+                            return (
+                                <div key={idx} className="recipe-card">
+                                    <div style={{position: 'relative'}}>
+                                        <img src={recipe.imageUrl} alt={recipe.name} className="recipe-image" />
+                                        <div className="recipe-badges">
+                                            <div className="recipe-badge">
+                                                🏪 {STORES.find(s => s.id === activeStore).name}
+                                            </div>
+                                            <div className="recipe-badge" style={{color: 'var(--primary)'}}>
+                                                ✨ {recipe.difficulty}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="recipe-content">
+                                        <h3 className="recipe-title">{recipe.name}</h3>
+                                        <p className="recipe-desc">{recipe.description}</p>
+
+                                        <div className="recipe-meta">
+                                            <div className="meta-item">⏱️ {recipe.prepTime}</div>
+                                            <div className="meta-item">🔥 {recipe.cookTime}</div>
+                                            <div className="meta-item">👥 {recipe.servings} pers.</div>
+                                        </div>
+
+                                        <div className="cost-breakdown">
+                                            <div className="cost-header">
+                                                <h4 className="cost-title">💰 Résumé des coûts</h4>
+                                            </div>
+
+                                            <div className="cost-row">
+                                                <span className="cost-label">Prix normal total</span>
+                                                <span className="cost-value strike">{costs.totalOriginal}€</span>
+                                            </div>
+
+                                            <div className="cost-row">
+                                                <span className="cost-label">Prix avec promotions</span>
+                                                <span className="cost-value highlight">{costs.totalPromo}€</span>
+                                            </div>
+
+                                            <div className="cost-row">
+                                                <span className="cost-label">Vous économisez</span>
+                                                <span className="savings-pill">-{costs.savings}€ ({costs.savingsPercent}%)</span>
+                                            </div>
+
+                                            <div className="cost-divider"></div>
+
+                                            <div className="cost-summary">
+                                                <div className="summary-box">
+                                                    <span className="summary-value">{recipe.servings}</span>
+                                                    <span className="summary-label">Portions</span>
+                                                </div>
+                                                <div className="summary-box">
+                                                    <span className="summary-value">{costs.costPerServing}€</span>
+                                                    <span className="summary-label">Par portion</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="nutrition-section">
+                                            <h4 className="nutrition-title">📊 Valeurs nutritionnelles (par portion)</h4>
+                                            <div className="nutrition-grid">
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-value">{Math.round(recipe.nutrition.calories / recipe.servings)}</span>
+                                                    <span className="nutrition-label">kcal</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-value">{Math.round(recipe.nutrition.proteins / recipe.servings)}g</span>
+                                                    <span className="nutrition-label">Protéines</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-value">{Math.round(recipe.nutrition.carbs / recipe.servings)}g</span>
+                                                    <span className="nutrition-label">Glucides</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-value">{Math.round(recipe.nutrition.fats / recipe.servings)}g</span>
+                                                    <span className="nutrition-label">Lipides</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="video-tutorial-section">
+                                            <h4 className="video-hook">🎬 Le chef ne suffit pas ? L'IA cuisine pour vous !</h4>
+                                            <p className="video-subhook">Regardez la vidéo tutoriel générée par IA et réalisez cette recette les yeux fermés 👨‍🍳</p>
+                                            
+                                            <div className="video-thumbnail" onClick={() => {
+                                                setCurrentVideoRecipe(recipe);
+                                                setShowVideoModal(true);
+                                            }}>
+                                                <img 
+                                                    src={recipe.imageUrl} 
+                                                    alt={`Tutoriel ${recipe.name}`} 
+                                                    className="video-thumbnail-image" 
+                                                />
+                                                <div className="video-play-overlay">
+                                                    <div className="video-play-button">
+                                                        <div className="play-icon"></div>
+                                                    </div>
+                                                    <div className="video-duration-badge">
+                                                        🎥 3:45 min
+                                                    </div>
+                                                </div>
+                                                <div className="video-ai-badge">
+                                                    ✨ Généré par IA
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="video-stats">
+                                                <div className="video-stat">
+                                                    <span className="video-stat-value">👁️ 12.4K</span>
+                                                    <span className="video-stat-label">Vues</span>
+                                                </div>
+                                                <div className="video-stat">
+                                                    <span className="video-stat-value">❤️ 98%</span>
+                                                    <span className="video-stat-label">Ont aimé</span>
+                                                </div>
+                                                <div className="video-stat">
+                                                    <span className="video-stat-value">⭐ 4.9</span>
+                                                    <span className="video-stat-label">Note</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="ingredients-section">
+                                            <h4 className="section-subtitle">📝 Ingrédients</h4>
+                                            {recipe.ingredients.map((ing, i) => (
+                                                <div key={i} className="ingredient-item">
+                                                    <span className="ingredient-name">{ing.quantity} {ing.item}</span>
+                                                    {ing.isPromo && <span className="promo-tag">PROMO</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="steps-section">
+                                            <h4 className="section-subtitle">👨‍🍳 Préparation</h4>
+                                            {recipe.steps.map((step, i) => (
+                                                <div key={i} className="step-item">
+                                                    <div className="step-number-circle">{i + 1}</div>
+                                                    <div className="step-text">{step}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="export-section">
+                                            <div className="export-header">
+                                                <h4 className="export-title">🛒 Commander les ingrédients</h4>
+                                            </div>
+
+                                            <button 
+                                                className="btn-export"
+                                                onClick={() => window.open(STORES.find(s => s.id === activeStore).url, '_blank')}
+                                            >
+                                                <div className="export-info">
+                                                    <div className="export-logo">
+                                                        {STORES.find(s => s.id === activeStore).name.substring(0, 3).toUpperCase()}
+                                                    </div>
+                                                    <div className="export-text">
+                                                        <div className="export-store-name">
+                                                            {STORES.find(s => s.id === activeStore).name}
+                                                        </div>
+                                                        <div className="export-subtitle">Faire mes courses en ligne</div>
+                                                    </div>
+                                                </div>
+                                                <div className="export-arrow">→</div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <div style={{textAlign: 'center', marginTop: '32px'}}>
+                            <button className="btn btn-primary" onClick={generateRecipes} style={{maxWidth: '300px', margin: '0 auto'}}>
+                                🔄 Nouvelles recettes
+                            </button>
+                        </div>
+                    </div>
+
+                    {showVideoModal && currentVideoRecipe && (
+                        <div className="video-modal">
+                            <div className="video-modal-header">
+                                <div className="video-modal-title">
+                                    🎬 Tutoriel IA : {currentVideoRecipe.name}
+                                </div>
+                                <button className="close-video-btn" onClick={() => setShowVideoModal(false)}>
+                                    ✕
+                                </button>
+                            </div>
+                            <div className="video-modal-player">
+                                <div className="video-placeholder">
+                                    <div className="video-placeholder-icon">🤖</div>
+                                    <h3 className="video-placeholder-title">Vidéo générée par IA</h3>
+                                    <p className="video-placeholder-text">
+                                        Découvrez comment notre IA transforme cette recette en tutoriel vidéo étape par étape, 
+                                        avec des instructions vocales et visuelles personnalisées !
+                                    </p>
+                                    <div className="video-features">
+                                        <div className="video-feature">
+                                            🎙️ Voix-off IA
+                                        </div>
+                                        <div className="video-feature">
+                                            📹 Angles multiples
+                                        </div>
+                                        <div className="video-feature">
+                                            ⏱️ Chrono intégré
+                                        </div>
+                                        <div className="video-feature">
+                                            📝 Sous-titres auto
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bottom-nav">
+                        <div className="nav-item" onClick={() => setRecipes([])}>
+                            <div className="nav-icon">🏠</div>
+                            <div className="nav-label">Accueil</div>
+                        </div>
+                        <div className="nav-item">
+                            <div className="nav-icon">🔍</div>
+                            <div className="nav-label">Recherche</div>
+                        </div>
+                        <div className="nav-item active">
+                            <div className="nav-icon">❤️</div>
+                            <div className="nav-label">Recettes</div>
+                        </div>
+                        <div className="nav-item" onClick={() => setView('onboarding')}>
+                            <div className="nav-icon">👤</div>
+                            <div className="nav-label">Profil</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
